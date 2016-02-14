@@ -1,0 +1,140 @@
+
+table Trait:
+ID   Cost Names
+Rep  0    Republic,Gov:Republic
+Min  -3   Miniature,Size:Miniature
+Dev  1    Developed,Dev:Developed
+Num  1    Numerous,Army:Numerous
+Pac  -1   Pacifist
+
+table Technology:
+ID   Tier Cost Prerequisites Names
+PrAe 1    80   -             "Primitive Aeroplanes"
+MilA 2    200  PrAe,EXPL     "Military Aircraft"
+Bmb  3    600  MilA,Cnstr    "Strategic Bombers"
+LRA  4    800  Bmb,Mass      "Long-Range Airplanes"
+
+table Region:
+ID     NumberOfProvinces NumberOfLandProvinces NumberOfSeaProvinces MapSize   Names
+Europe 97                79                    18                   1300,1020 Europe
+
+table Province:
+ID Type   MapPos  IDPos   UnitPos PIPos   PCPos   UnitRowW PIRowW PCRowW Names
+19 Inland 784,484 797,422 788,488 775,439 774,504 1        3      3      Belarus,Belorussia
+40 Coast  586,726 583,698 583,724 556,696 613,731 1        2      1      Dalmatia
+68 Coast  428,832 443,836 423,838 421,815 424,847 2        2      2      Sardinia
+A  Water  833,37  794,34  830,61  -       -       1        -      -      "Barents Sea"
+C  Water  141,266 59,246  222,249 -       -       1        -      -      "N. Atlantic","North Atlantic"
+
+table Nation:
+ID  Type   Leader        Color   OrigCapital Traits                      Names
+Kar Player "Elias Sauli" 0,0,255 15          Rep,Med,Mod,Sml,Nav,Enl,Ind Karelia,"Karelian Coalition"
+
+table Game:
+ID   TurnOrder                   Turn NextToMove Names
+WoE3 Ott,Bel,Mon,Kar,AAI,Rom,Can 3    Bel        "War of Europa III"
+
+table NationState:
+Nation Capital Research ResearchPoints Technologies NProvinces NUnits NArmies NFleets MaxUnits RPPerTurn PIPerTurn
+Kar    15      Radio    20             EXPL,Disel   7          6      5       1       11       20        5
+
+table Blueprint:
+Nation Technology TurnsSpent
+Ott    EXPL       1
+
+table DiplomaticState:
+Nation1 Nation2 Type
+Ott     Mon     Trade
+Mon     Can     Trade
+Mon     Can     Research
+
+table Agreement:
+ID  Proposer Parties     Signatories ConcludedAt Names
+MCT Mon      Mon,Can     Mon,Can     2           "Mongol-Canadian trade pact"
+WEP Bel      Bel,Can,Rom Can         -           "Western European Partnership"
+LFP AAI      AAI,Ott     -           -           "Land for Planes"
+
+table DiplomaticOffer:
+SubjectNation ObjectNation Agreement Type     Duration
+Mon           Can          MCT       Trade    5
+Rom           Bel          WEP       Research 6
+Rom           Can          WEP       Research 6
+
+table TechnologyOffer:
+SubjectNation ObjectNation Agreement Technology
+AAI           Ott          LFP       MilA
+
+table ProvinceOffer:
+SubjectNation ObjectNation Agreement Province
+Ott           AAI          LFP       33
+
+table ProvinceState:
+Province Nation Improvements       Conditions
+20       Mon    Rail,Aca,Frtf,HQ   Pop
+77       AAI    Rail,Aca,Frtf,Port -
+
+table MoveOrder:
+UnitType UnitNumber Province1 Province2 ConvoyVia
+Army     4          58        61        -
+Army     1          46        14        F,G
+Fleet    1          O         N         -
+
+table BuildOrder:
+Improvement Action Provinces
+Rail        Build  43,18
+Port        Build  7
+Frtf        Raze   28,29
+
+table ResearchOrder:
+Technology
+Bmb
+
+table ProposalOrder:
+Action           AgreementID Parties     AgreementNames
+Propose          WEP         Bel,Can,Rom "Western European Partnership"
+WithdrawProposal WEP         -           -
+
+table SigningOrder:
+Agreement Action
+WEP       Sign
+WEP       WithdrawSignature
+
+table DiplomaticOrder:
+ObjectNation Agreement Type     Action        Duration
+Can          -         Trade    Cancel        -
+Bel          WEP       Research Offer         6
+Can          WEP       Research Offer         6
+Can          WEP       Research WithdrawOffer 6
+
+table TechnologyTradeOrder:
+ObjectNation Agreement Technology Action
+Ott          LFP       MilA       Offer
+
+table ProvinceTradeOrder:
+ObjectNation Agreement Province Action
+AAI          LFP       33       Offer
+
+matrix ProvinceLink:
+  1 2 3 4 5
+1 - - - - -
+2 - - C - -
+3 - C - N N
+4 - - N - N
+5 - - N N -
+
+matrix ArmyOccupancy:
+   Ott Bel Mon Kar AAI Rom Can
+23 0   0   3   0   0   0   0
+30 0   0   0   0   0   0   0
+38 2   0   0   0   0   1   0
+46 0   1   0   0   0   0   0
+58 0   0   0   0   0   0   4
+74 0   0   0   0   6   0   0
+
+matrix FleetOccupancy:
+   Ott Bel Mon Kar AAI Rom Can
+G  0   1   0   1   0   0   0
+R  2   0   3   0   0   0   0
+L  0   0   0   0   1   1   0
+S  3   0   0   0   0   0   0
+46 0   1   0   0   0   0   0

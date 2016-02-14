@@ -1,0 +1,395 @@
+
+---<<< Datafile Name Formats >>>---
+Non-specific files:    EoD_$FILETYPE.txt
+Region-specific files: EoD_$REGID_$FILETYPE.txt
+Game-specific files:   EoD_$REGID_$GAMEID_$FILETYPE.txt
+Turn-specific files:   EoD_$REGID_$GAMEID_$TURN_$FILETYPE.txt
+Move-specific files:   EoD_$REGID_$GAMEID_$TURN_$NATION_$FILETYPE.txt
+
+
+---<<< Datafile Syntax >>>---
+Datafile ::= WS ((Table | Matrix | Comment) WS)*
+
+Table ::= TableLabel TableHead TableBody NL
+
+TableLabel ::= LWS ('table' MLWS)? TableName LWS ':' LWS NL
+
+TableName ::= AlphaNumIdentifier
+
+TableHead ::= LWS ColumnName (MLWS ColumnName)* LWS NL
+
+ColumnName ::= AlphaNumIdentifier
+
+TableBody ::= TableRow*
+
+TableRow ::= LWS FieldValue (MLWS FieldValue)* LWS NL
+
+Matrix ::= MatrixLabel MatrixHead MatrixBody NL
+
+MatrixLabel ::= LWS 'matrix' MLWS MatrixName LWS ':' LWS NL
+
+MatrixName ::= AlphaNumIdentifier
+
+MatrixHead ::= LWS MatrixTupleName (MLWS MatrixTupleName)* LWS NL
+
+MatrixTupleName ::= NumAlphaIdentifier
+
+MatrixBody ::= MatrixRow*
+
+MatrixRow ::= LWS MatrixTupleName MLWS FieldValue (MLWS FieldValue)* LWS NL
+
+Comment ::= CommentLine+
+
+CommentLine ::= LWS '#' CommentText NL
+
+AlphaNumIdentifier ::= [A-Z_a-z] [0-9A-Z_a-z]*
+
+NumAlphaIdentifier ::= [0-9A-Z_a-z]+
+
+FieldValue ::= SingleValue | MultiValue
+
+MultiValue ::= SingleValue (',' SingleValue)+
+
+SingleValue ::= UnquotedText | '"' QuotedText '"'
+
+UnquotedText ::= (any Unicode character except '\t', '\n', '\r', ' ', '"', '#', and ',')+
+
+QuotedText ::= (any Unicode character except '\n', '\r', and '"')*
+
+CommentText ::= (any Unicode character except '\n' and '\r')*
+
+WS ::=  (LWS NL)* LWS
+
+LWS ::= [ \t]*
+
+MLWS ::= [ \t]+
+
+NL ::= '\n' | '\r\n'
+
+
+---<<< Datafile Types >>>---
+Name:        Rules
+Specificity: -
+Structure:
+	1 table Trait
+	1 table Technology
+Written by:  Turn Processor
+Read by:     -
+Description:
+	Describes hard-coded entities.
+
+Name:        Region
+Specificity: Region
+Structure:
+	   1 table  Region
+	   1 table  Province
+	0..1 matrix ProvinceLink
+	0..1 table  Nation
+Written by:  User
+Read by:     Turn Processor, Map Generator
+Description:
+	Describes a region with its provinces and nations.
+
+Name:        Nation
+Specificity: Region, Game
+Structure:
+	1 table Nation
+Written by:  User
+Read by:     Turn Processor, Map Generator
+Description:
+	Describes one or more nations within a region.
+
+Name:        Game
+Specificity: Game, Turn, Move
+Structure:
+	0..1 table  Region
+	   1 table  Game
+	   1 table  NationState
+	0..1 table  Blueprint
+	   1 table  DiplomaticState
+	0..1 table  Agreement
+	0..1 table  DiplomaticOffer
+	0..1 table  TechnologyOffer
+	0..1 table  ProvinceOffer
+	   1 table  ProvinceState
+	   1 matrix ArmyOccupancy
+	   1 matrix FleetOccupancy
+Written by:  User, Turn Processor
+Read by:     Turn Processor, Map Generator
+Description:
+	Describes one (initial, intermediate or final) state of a game.
+
+Name:        Move
+Specificity: Move
+Structure:
+	0..1 table MoveOrder
+	0..1 table BuildOrder
+	0..1 table ResearchOrder
+	0..1 table ProposalOrder
+	0..1 table SigningOrder
+	0..1 table DiplomaticOrder
+	0..1 table TechnologyTradeOrder
+	0..1 table ProvinceTradeOrder
+Written by:  User
+Read by:     Turn Processor, Map Generator
+Description:
+	Describes a move made by a player during a game.
+
+
+---<<< Table Types >>>---
+Name: Trait
+Structure:
+	 ID
+	 Cost
+	*Names
+Description:
+	Describes nation Traits. Does not include the in-game semantics of Traits.
+
+Name: Technology
+Structure:
+	 ID
+	 Tier
+	 Cost
+	*Prerequisites
+	*Names
+Description:
+	Describes Technologies. Does not include the in-game semantics of Technologies.
+
+Name: Region
+Structure:
+	 ID
+	/NumberOfProvinces
+	/NumberOfLandProvinces
+	/NumberOfSeaProvinces
+	 MapSize
+	*Names
+Description:
+	Declares a Region. Provinces defined separately.
+
+Name: Province
+Structure:
+	 ID
+	 Type
+	 MapPos
+	 IDPos
+	 UnitPos
+	 PIPos
+	 PCPos
+	 UnitRowW
+	 PIRowW
+	 PCRowW
+	*Names
+Description:
+	Declares Provinces. Region implicit. Topology defined separately.
+
+Name: Nation
+Structure:
+	 ID
+	 Type
+	 Leader
+	*Color
+	 OrigCapital
+	*Traits
+	*Names
+Description:
+	Describes Nations. Region and optionally Game implicit.
+
+Name: Game
+Structure:
+	 ID
+	*TurnOrder
+	 Turn
+	 NextToMove
+	*Names
+Description:
+	Describes a Game. Region implicit. Nation and Province state defined separately.
+
+Name: NationState
+Structure:
+	 Nation
+	 Capital
+	 Research
+	 ResearchPoints
+	*Technologies
+	/NProvinces
+	/NUnits
+	/NArmies
+	/NFleets
+	/MaxUnits
+	/RPPerTurn
+	/PIPerTurn
+Description:
+	Describes the state of Nations during a Game. Game, turn and move implicit.
+	Province state defined separately.
+
+Name: Blueprint
+Structure:
+	Nation
+	Technology
+	TurnsSpent
+Description:
+	Describes Blueprints owned by a Nation during a Game.
+	Game, turn and move implicit.
+
+Name: DiplomaticState
+Structure:
+	Nation1
+	Nation2
+	Type
+Description:
+	Describes pacts between Nations during a Game. Game, turn and move implicit.
+
+Name: Agreement
+Structure:
+	 ID
+	 Proposer
+	*Parties
+	*Signatories
+	 ConcludedAt
+	*Names
+Description:
+	Describes negotiated Agreements between Nations during a Game.
+	Game, turn and move implicit.
+
+Name: DiplomaticOffer
+Structure:
+	SubjectNation
+	ObjectNation
+	Agreement
+	Type
+	Duration
+Description:
+	Describes diplomatic offers made as part of an Agreement.
+
+Name: TechnologyOffer
+Structure:
+	SubjectNation
+	ObjectNation
+	Agreement
+	Technology
+Description:
+	Describes Technology trade offers made as part of an Agreement.
+
+Name: ProvinceOffer
+Structure:
+	SubjectNation
+	ObjectNation
+	Agreement
+	Province
+Description:
+	Describes Province trade offers made as part of an Agreement.
+
+Name: ProvinceState
+Structure:
+	 Province
+	 Nation
+	*Improvements
+	*Conditions
+Description:
+	Describes the state of Provinces during a Game. Game, turn and move implicit.
+	Unit occupancy defined separately.
+
+Name: MoveOrder
+Structure:
+	 UnitType
+	 UnitNumber
+	 Province1
+	 Province2
+	*ConvoyVia
+Description:
+	Describes move orders issued during a Game. Game, turn and move implicit.
+
+Name: BuildOrder
+Structure:
+	 Improvement
+	 Action
+	*Provinces
+Description:
+	Describes build orders issued during a Game. Game, turn and move implicit.
+
+Name: ResearchOrder
+Structure:
+	Technology
+Description:
+	Describes research orders issued during a Game. Game, turn and move implicit.
+
+Name: ProposalOrder
+Structure:
+	 Action
+	 AgreementID
+	 Parties
+	*AgreementNames
+Description:
+	Describes proposal orders issued during a Game. Game, turn and move implicit.
+
+Name: SigningOrder
+Structure:
+	Agreement
+	Action
+Description:
+	Describes signing orders issued during a Game. Game, turn and move implicit.
+
+Name: DiplomaticOrder
+Structure:
+	ObjectNation
+	Agreement
+	Type
+	Action
+	Duration
+Description:
+	Describes diplomatic orders issued during a Game. Game, turn and move implicit.
+
+Name: TechnologyTradeOrder
+Structure:
+	ObjectNation
+	Agreement
+	Technology
+	Action
+Description:
+	Describes Technology trade orders issued during a Game. Game, turn and move implicit.
+
+Name: ProvinceTradeOrder
+Structure:
+	ObjectNation
+	Agreement
+	Province
+	Action
+Description:
+	Describes Province trade orders issued during a Game. Game, turn and move implicit.
+
+
+---<<< Matrix Types >>>---
+Name: ProvinceLink
+Row Key:
+	Province1
+Column Key:
+	Province2
+Values:
+	Type
+Description:
+	Describes the links between Provinces. The row and column keys are Province IDs,
+	the matrix values denote the type of link (Normal, Pass, Crossing, etc.).
+	A designated null value (e.g. "-") may be used to indicate that there is no link.
+	Region implicit.
+
+Name: ArmyOccupancy
+Row Key:
+	Province
+Column Key:
+	Nation
+Values:
+	NArmies
+Description:
+	Describes the deployment of armies across Provinces during a Game.
+	Game, turn and move implicit.
+
+Name: FleetOccupancy
+Row Key:
+	Province
+Column Key:
+	Nation
+Values:
+	NFleets
+Description:
+	Describes the deployment of fleets across Provinces during a Game.
+	Game, turn and move implicit.

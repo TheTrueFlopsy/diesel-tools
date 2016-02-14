@@ -1,0 +1,207 @@
+
+---<<< Data Model Syntax >>>---
+--- Table ---
+AttributeName: type # Comment.
+MultiValuedAttribute: *type
+DerivedAttribute: /type
+ForeignKeyAttribute: ReferencedTable.KeyAttribute
+
+
+---<<< Data Model >>>---
+--- Trait ---
+ID: string
+Names: *string
+Cost: int
+
+--- Technology ---
+ID: string
+Names: *string
+Tier: int
+Cost: int
+Prerequisites: *Technology.ID
+
+--- Region ---
+ID: string
+Names: *string
+MapSize: *int # W, H
+NumberOfProvinces: /int
+NumberOfLandProvinces: /int
+NumberOfWaterProvinces: /int
+
+--- Province ---
+Region: Region.ID
+ID: string
+Names: *string
+Type: enum { Inland, Coast, Water }
+MapPos: *int  # X, Y (NOTE: Starting point for flood fill algorithm.)
+IDPos: *int   # X, Y
+UnitPos: *int # X, Y
+PIPos: *int   # X, Y
+PCPos: *int   # X, Y
+UnitRowW: int # Unit icons per row.
+PIRowW: int   # Improvement icons per row.
+PCRowW: int   # Province condition icons per row.
+
+--- Province Link ---
+Region: Region.ID
+Province1: Province.ID
+Province2: Province.ID
+Type: enum { N, M, P, C } # Normal, Mountain, Pass, Crossing
+
+--- Nation ---
+Region: Region.ID
+ID: string
+Names: *string
+Leader: string
+Color: *int # R, G, B
+Traits: *Trait.ID
+OrigCapital: Province.ID
+Type: enum { Player, MajorNPC, MinorNPC }
+
+--- Game ---
+Region: Region.ID
+ID: string
+Names: *string
+Turn: int
+TurnOrder: *Nation.ID
+NextToMove: Nation.ID
+
+--- NationState ---
+Game: Game.ID
+Nation: Nation.ID
+Capital: Province.ID
+Technologies: *Technology.ID
+Research: Technology.ID
+ResearchPoints: int
+NProvinces: /int
+NUnits: /int
+NArmies: /int
+NFleets: /int
+MaxUnits: /int
+RPPerTurn: /int
+PIPerTurn: /int
+
+--- Blueprint ---
+Game: Game.ID
+Nation: Nation.ID
+Technology: Technology.ID
+TurnsSpent: int
+
+--- Province State ---
+Game: Game.ID
+Province: Province.ID
+Nation: Nation.ID
+Improvements: *enum { Rail, Aca, Frtf, Port, HQ, Airf, AA }
+Conditions: *enum { Pop, Typh }
+
+--- Province Occupancy ---
+Game: Game.ID
+Province: Province.ID
+Nation: Nation.ID
+NArmies: int
+NFleets: int
+
+--- Diplomatic State ---
+Game: Game.ID
+Nation1: Nation.ID
+Nation2: Nation.ID
+Type: enum { Peace, Alliance, Trade, Research }
+
+# The Proposer chooses the Parties. Agreements cannot be hijacked.
+# Only the chosen Parties can attach offers or sign the agreement.
+# Agreements with at least one signature cannot be altered or withdrawn.
+--- Agreement ---
+Game: Game.ID
+ID: string
+Names: *string
+Proposer: Nation.ID
+Parties: *Nation.ID
+Signatories: *Nation.ID
+ConcludedAt: int # Turn number. An Agreement is concluded iff signed by all Parties.
+
+--- Diplomatic Offer ---
+SubjectNation: Nation.ID
+ObjectNation: Nation.ID
+Agreement: Agreement.ID
+Type: enum { Peace, Alliance, Trade, Research }
+Duration: int # Number of turns offered. Premature cancellation is breach of contract.
+
+--- Technology Offer ---
+SubjectNation: Nation.ID
+ObjectNation: Nation.ID
+Agreement: Agreement.ID
+Technology: Technology.ID
+
+--- Province Offer ---
+SubjectNation: Nation.ID
+ObjectNation: Nation.ID
+Agreement: Agreement.ID
+Province: Province.ID
+
+--- Move Order ---
+Game: Game.ID
+Turn: int
+Nation: Nation.ID
+UnitType: enum { Army, Fleet }
+UnitNumber: int
+Province1: Province.ID
+Province2: Province.ID
+ConvoyVia: *Province.ID
+
+--- Build Order ---
+Game: Game.ID
+Turn: int
+Nation: Nation.ID
+Improvement: enum { Rail, Aca, Frtf, Port, HQ, Airf, AA }
+Action: enum { Build, Raze }
+Provinces: *Province.ID
+
+--- Research Order ---
+Game: Game.ID
+Turn: int
+Nation: Nation.ID
+Technology: Technology.ID
+
+--- Proposal Order ---
+Game: Game.ID
+Turn: int
+Nation: Nation.ID
+Action: enum { Propose, WithdrawProposal }
+AgreementID: string
+AgreementNames: *string
+Parties: *Nation.ID
+
+--- Signing Order ---
+Game: Game.ID
+Turn: int
+Nation: Nation.ID
+Agreement: Agreement.ID
+Action: enum { Sign, WithdrawSignature }
+
+--- Diplomatic Order ---
+Game: Game.ID
+Turn: int
+SubjectNation: Nation.ID
+ObjectNation: Nation.ID
+Agreement: Agreement.ID # Optional. If unspecified, Action must be Cancel.
+Type: enum { Peace, Alliance, Trade, Research }
+Action: enum { Offer, WithdrawOffer, Cancel }
+Duration: int # Number of turns offered. Premature cancellation is breach of contract.
+
+--- Technology Trade Order ---
+Game: Game.ID
+Turn: int
+SubjectNation: Nation.ID
+ObjectNation: Nation.ID
+Agreement: Agreement.ID
+Technology: Technology.ID
+Action: enum { Offer, WithdrawOffer}
+
+--- Province Trade Order ---
+Game: Game.ID
+Turn: int
+SubjectNation: Nation.ID
+ObjectNation: Nation.ID
+Agreement: Agreement.ID
+Province: Province.ID
+Action: enum { Offer, WithdrawOffer}
