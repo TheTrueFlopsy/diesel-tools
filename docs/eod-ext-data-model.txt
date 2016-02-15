@@ -123,6 +123,7 @@ Name:        Move
 Specificity: Move
 Structure:
 	0..1 table MoveOrder
+	0..1 table BombingOrder
 	0..1 table BuildOrder
 	0..1 table ResearchOrder
 	0..1 table ProposalOrder
@@ -298,6 +299,14 @@ Structure:
 	*ConvoyVia
 Description:
 	Describes move orders issued during a Game. Game, turn and move implicit.
+
+Name: BombingOrder
+Structure:
+	 Improvement
+	*Airfields
+	 Target
+Description:
+	Describes bombing orders issued during a Game. Game, turn and move implicit.
 
 Name: BuildOrder
 Structure:

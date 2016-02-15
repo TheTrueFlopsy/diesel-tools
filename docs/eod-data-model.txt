@@ -148,6 +148,14 @@ Province1: Province.ID
 Province2: Province.ID
 ConvoyVia: *Province.ID
 
+--- Bombing Order ---
+Game: Game.ID
+Turn: int
+Nation: Nation.ID
+Improvement: enum { Rail, Aca, Frtf, Port, HQ, Airf, AA }
+Airfields: *Province.ID
+Target: Province.ID
+
 --- Build Order ---
 Game: Game.ID
 Turn: int

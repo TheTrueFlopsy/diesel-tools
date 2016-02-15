@@ -79,6 +79,12 @@ Army     4          58        61        -
 Army     1          46        14        F,G
 Fleet    1          O         N         -
 
+table BombingOrder:
+Improvement Airfields Target
+Frtf        23,42,74  22
+Frtf        16,24     17
+AA          54,55     56
+
 table BuildOrder:
 Improvement Action Provinces
 Rail        Build  43,18
